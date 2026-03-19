@@ -1,9 +1,57 @@
 import { useState, useEffect, useRef } from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Folder, File, Plus, CloudUpload, Share, Code, GitBranch, LayoutGrid, Play, X, Terminal, Settings, Maximize2, Save, Maximize } from 'lucide-react'
 import CodeEditor from './components/CodeEditor'
+import Login from './components/Login'
+import Signup from './components/Signup'
+import HomePage from './pages/HomePage'
 import './App.css'
 
-function App() {
+function AppWrapper() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState(null)
+
+  const handleLogin = (userData) => {
+    setIsAuthenticated(true)
+    setUser(userData)
+    localStorage.setItem('wecode-user', JSON.stringify(userData))
+  }
+
+  const handleSignup = (userData) => {
+    setIsAuthenticated(true)
+    setUser(userData)
+    localStorage.setItem('wecode-user', JSON.stringify(userData))
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    setUser(null)
+    localStorage.removeItem('wecode-user')
+  }
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('wecode-user')
+    if (savedUser) {
+      const userData = JSON.parse(savedUser)
+      setUser(userData)
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login onLogin={handleLogin} onSwitchToSignup={() => window.location.href = '/signup'} />} />
+        <Route path="/signup" element={<Signup onSignup={handleSignup} onSwitchToLogin={() => window.location.href = '/login'} />} />
+        <Route path="/" element={isAuthenticated ? <HomePage user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
+  )
+}
+
+function App({ user, onLogout }) {
+
   const [html, setHtml] = useState(`<!-- WeCode - Professional Web Development Environment -->
 <!DOCTYPE html>
 <html lang="en">
@@ -428,9 +476,15 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
           <img src="/wecode_logo.png" alt="WeCode Logo" className="logo-image" />
         </div>
         <div className="header-actions">
+          <div className="user-info">
+            <span>Welcome, {user?.name || user?.email}</span>
+          </div>
           <button className="header-btn" onClick={saveCode}>
             <Save size={16} />
             Save
+          </button>
+          <button className="header-btn" onClick={handleLogout}>
+            Logout
           </button>
           <button className="header-btn console-btn" onClick={() => setShowConsole(!showConsole)}>
             <Terminal size={16} />
@@ -578,4 +632,4 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
   )
 }
 
-export default App
+export default AppWrapper
