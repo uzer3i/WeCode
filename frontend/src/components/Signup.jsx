@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import './Auth.css'
 
 const Signup = ({ onSignup, onSwitchToLogin }) => {
@@ -28,10 +29,21 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      onSignup(formData)
+      const response = await axios.post('http://localhost:3000/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      })
+      
+      if (response.data) {
+        onSignup(formData)
+      }
     } catch (error) {
-      setErrors({ general: 'Signup failed' })
+      if (error.response?.data?.message) {
+        setErrors({ general: error.response.data.message })
+      } else {
+        setErrors({ general: 'Signup failed. Please try again.' })
+      }
     } finally {
       setIsLoading(false)
     }
