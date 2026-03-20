@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import './Auth.css'
 
 const Login = ({ onLogin, onSwitchToSignup }) => {
@@ -23,10 +24,20 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      onLogin(formData)
+      const response = await axios.post('http://localhost:3000/api/auth/login', {
+        email: formData.email,
+        password: formData.password
+      })
+      
+      if (response.data) {
+        onLogin(formData)
+      }
     } catch (error) {
-      setErrors({ general: 'Login failed' })
+      if (error.response?.data?.message) {
+        setErrors({ general: error.response.data.message })
+      } else {
+        setErrors({ general: 'Login failed. Please try again.' })
+      }
     } finally {
       setIsLoading(false)
     }
