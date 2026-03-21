@@ -69,8 +69,6 @@ async function loginUser(req, res) {
       httpOnly: true,
     });
 
-    console.log(token)
-
     res.status(200).json({
       message: "User logged in successfully",
       user: {
