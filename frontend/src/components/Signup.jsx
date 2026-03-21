@@ -29,14 +29,17 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      const response = await axios.post('http://localhost:3000/register', {
+      const response = await axios.post('http://localhost:3000/api/auth/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password
       })
       
       if (response.data) {
-        onSignup(formData)
+        // Store token and user data locally
+        localStorage.setItem('wecode-token', response.data.token)
+        localStorage.setItem('wecode-user', JSON.stringify(response.data.user))
+        onSignup(response.data.user)
       }
     } catch (error) {
       if (error.response?.data?.message) {
