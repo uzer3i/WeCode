@@ -36,7 +36,10 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
       })
       
       if (response.data) {
-        onSignup(formData)
+        // Store token and user data locally
+        localStorage.setItem('wecode-token', response.data.token)
+        localStorage.setItem('wecode-user', JSON.stringify(response.data.user))
+        onSignup(response.data.user)
       }
     } catch (error) {
       if (error.response?.data?.message) {

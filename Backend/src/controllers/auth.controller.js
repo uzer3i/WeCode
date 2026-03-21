@@ -38,6 +38,7 @@ async function registerUser(req, res) {
         name: user.name,
         email: user.email,
       },
+      token: token
     });
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -77,6 +78,7 @@ async function loginUser(req, res) {
         name: user.name,
         email: user.email,
       },
+      token: token
     });
   } catch (e) {
     res.status(500).json({
