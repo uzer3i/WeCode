@@ -92,6 +92,29 @@ body {
   filter: drop-shadow(0 3px 12px rgba(147, 51, 234, 0.3));
 }
 
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 .header-actions {
   display: flex;
   gap: 10px;
@@ -116,7 +139,6 @@ body {
   background: linear-gradient(135deg, #ffeb99 0%, #ffd966 50%, #ffeb99 100%);
   color: #000;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 217, 102, 0.3);
 }
 
 .header-btn.console-btn {
@@ -130,7 +152,6 @@ body {
   background: linear-gradient(135deg, #ff4444 0%, #1a1a1a 50%, #ff4444 100%);
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.4);
 }
 
 /* Editor Area */
@@ -230,17 +251,17 @@ body {
   right: 0; /* Changed from bottom to right */
   top: 0;
   bottom: 0;
-  width: 4px; /* Changed from height to width */
+  width: 8px; /* Changed from height to width - increased for better grab */
   background: linear-gradient(to right, transparent 0%, #666 50%, transparent 100%);
-  cursor: ew-resize; /* Changed from ns-resize to ew-resize */
-  border-radius: 2px;
-  transition: all 0.3s ease;
+  cursor: ew-resize;
+  z-index: 10;
   opacity: 0.7;
+  transition: all 0.2s ease;
 }
 
 .tray-resize-handle:hover {
   background: linear-gradient(to right, transparent 0%, #888 50%, transparent 100%);
-  width: 6px; /* Changed from height to width */
+  width: 10px; /* Slightly wider on hover */
   opacity: 1;
   transform: scaleX(1.2);
 }
@@ -358,7 +379,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 20px;
+  padding: 8px 20px; /* Reduced from 8px 20px to make it more compact */
   background: #242424;
   border-bottom: 1px solid #333;
 }
@@ -373,10 +394,10 @@ body {
   background: #00d4ff;
   border: none;
   color: #ffffff;
-  padding: 6px 12px;
+  padding: 4px 8px; /* Reduced from 6px 12px to make more compact */
   border-radius: 4px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10px; /* Reduced from 11px */
   font-weight: 600;
   transition: all 0.2s;
 }
@@ -387,17 +408,37 @@ body {
   align-items: center;
 }
 
+.console-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Reduced from 6px */
+  background: #ff4444;
+  border: none;
+  color: white;
+  padding: 4px 8px; /* Reduced from 6px 12px to make more compact */
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px; /* Reduced from 11px */
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.console-btn:hover {
+  background: #cc0000;
+  transform: translateY(-1px);
+}
+
 .fullscreen-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px; /* Reduced from 6px */
   background: #9333ea;
   border: none;
   color: #ffffff;
-  padding: 6px 12px;
+  padding: 4px 8px; /* Reduced from 6px 12px to make more compact */
   border-radius: 4px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10px; /* Reduced from 11px */
   font-weight: 600;
   transition: all 0.2s;
 }
@@ -407,28 +448,116 @@ body {
   transform: translateY(-1px);
 }
 
-.editor-preview-resize-handle {
-  position: relative;
-  height: 8px;
+/* Preview Resize Handle */
+.preview-resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   background: linear-gradient(to bottom, transparent 0%, #666 50%, transparent 100%);
   cursor: ns-resize;
   transition: all 0.3s ease;
-  margin: 4px 0;
   border-radius: 4px;
   opacity: 0.7;
+  z-index: 101;
 }
 
-.editor-preview-resize-handle:hover {
-  background: linear-gradient(to bottom, transparent 0%, #888 50%, transparent 100%);
-  height: 12px;
+.preview-resize-handle:hover {
+  /* background: linear-gradient(to bottom, transparent 0%, #4a90e2 50%, transparent 100%); */
+  height: 5px;
   opacity: 1;
   transform: scaleY(1.2);
 }
 
-.editor-preview-resize-handle:active {
-  background: linear-gradient(to bottom, transparent 0%, #999 50%, transparent 100%);
+.preview-resize-handle:active {
+  background: linear-gradient(to bottom, transparent 0%, #5c2ed1b4 50%, transparent 100%);
   opacity: 1;
   transform: scaleY(1.3);
+}
+
+/* Bottom Preview Panel */
+.bottom-preview-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.bottom-preview-panel .preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px;
+  background: #242424;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.bottom-preview-panel .preview-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: white;
+}
+
+/* Adjust editor area to account for bottom preview */
+.editor-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 20vh; /* Account for bottom preview */
+}
+
+/* Bracket Highlighting */
+.editor-textarea.html {
+  color: #569cd6;
+}
+
+.editor-textarea.html::before,
+.editor-textarea.html::after {
+  content: attr(data-bracket);
+  color: #569cd6;
+  font-weight: bold;
+}
+
+.editor-textarea.css,
+.editor-textarea.js {
+  color: #ff79c6;
+}
+
+.editor-textarea.css::before,
+.editor-textarea.css::after,
+.editor-textarea.js::before,
+.editor-textarea.js::after {
+  content: attr(data-bracket);
+  color: #ff79c6;
+  font-weight: bold;
+}
+
+/* Line Numbers */
+.line-numbers {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background: #2d2d2d;
+  border-right: 1px solid #333;
+  color: #858585;
+  padding: 15px 10px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: right;
+  user-select: none;
+  white-space: pre;
+  overflow: hidden;
+  z-index: 1;
 }
 
 /* Fullscreen Modal */
