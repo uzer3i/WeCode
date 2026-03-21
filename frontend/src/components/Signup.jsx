@@ -29,7 +29,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      const response = await axios.post('http://localhost:3000/register', {
+      const response = await axios.post('http://localhost:3000/api/auth/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password
