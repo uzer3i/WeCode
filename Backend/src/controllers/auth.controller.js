@@ -86,4 +86,21 @@ async function loginUser(req, res) {
   }
 }
 
-module.exports = { registerUser, loginUser };
+// ✅ LOGOUT
+const logoutUser = async (req, res) => {
+  try {
+    // JWT is stateless → server kuch delete nahi karta
+
+    res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { registerUser, loginUser, logoutUser };
