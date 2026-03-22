@@ -24,10 +24,14 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
+      console.log('Form data being sent:', formData)
+      
+      const response = await axios.post('https://wecode-backend-876t.onrender.com/api/auth/login', {
         email: formData.email,
         password: formData.password
       })
+      
+      console.log('Login response:', response.data)
       
       if (response.data) {
         // Store token and user data locally
@@ -36,10 +40,21 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
         onLogin(response.data.user)
       }
     } catch (error) {
+      console.error('Login error details:', {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+        status: error.response?.status
+      })
+      
       if (error.response?.data?.message) {
         setErrors({ general: error.response.data.message })
+      } else if (error.code === 'ERR_NETWORK') {
+        setErrors({ general: 'Network error. Backend may be down.' })
+      } else if (error.code === 'ECONNREFUSED') {
+        setErrors({ general: 'Cannot connect to server.' })
       } else {
-        setErrors({ general: 'Login failed. Please try again.' })
+        setErrors({ general: `Login failed: ${error.message}` })
       }
     } finally {
       setIsLoading(false)
@@ -48,6 +63,7 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    console.log(`Input changed: ${name} = ${value}`)
     setFormData(prev => ({ ...prev, [name]: value }))
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }

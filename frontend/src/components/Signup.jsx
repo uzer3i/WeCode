@@ -45,7 +45,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
 
     try {
       const response = await axios.post(
-        'http://localhost:3000/api/auth/register',
+        'https://wecode-backend-876t.onrender.com/api/auth/register',
         {
           name: formData.name,
           email: formData.email,
@@ -61,7 +61,7 @@ const Signup = ({ onSignup, onSwitchToLogin }) => {
         onSignup(response.data.user)
 
         // ✅ Redirect to home page
-        navigate("/login")
+        navigate("/")
       }
 
     } catch (error) {
