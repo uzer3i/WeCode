@@ -44,27 +44,47 @@ function App() {
     }
   }, [])
 
-  // If not authenticated, show login/signup routes
-  if (!isAuthenticated) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login onLogin={handleLogin} onSwitchToSignup={() => window.location.href = '/signup'} />} />
-          <Route path="/signup" element={<Signup onSignup={handleSignup} onSwitchToLogin={() => window.location.href = '/login'} />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
-    )
-  }
-
-  // If authenticated, show the code editor
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<CodeEditorApp user={user} onLogout={handleLogout} />} />
-        <Route path="/editor" element={<CodeEditorApp user={user} onLogout={handleLogout} />} />
-        <Route path="/snippet" element={<SnippetLoader user={user} onLogout={handleLogout} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Public routes - always accessible */}
+        <Route path="/login" element={
+          isAuthenticated ? 
+          <Navigate to="/" replace /> : 
+          <Login onLogin={handleLogin} onSwitchToSignup={() => window.location.href = '/signup'} />
+        } />
+        
+        <Route path="/signup" element={
+          isAuthenticated ? 
+          <Navigate to="/" replace /> : 
+          <Signup onSignup={handleSignup} onSwitchToLogin={() => window.location.href = '/login'} />
+        } />
+
+        {/* Protected routes - require authentication */}
+        <Route path="/" element={
+          isAuthenticated ? 
+          <CodeEditorApp user={user} onLogout={handleLogout} /> : 
+          <Navigate to="/login" replace />
+        } />
+        
+        <Route path="/editor" element={
+          isAuthenticated ? 
+          <CodeEditorApp user={user} onLogout={handleLogout} /> : 
+          <Navigate to="/login" replace />
+        } />
+        
+        <Route path="/snippet" element={
+          isAuthenticated ? 
+          <SnippetLoader user={user} onLogout={handleLogout} /> : 
+          <Navigate to="/login" replace />
+        } />
+
+        {/* Catch all route */}
+        <Route path="*" element={
+          isAuthenticated ? 
+          <Navigate to="/" replace /> : 
+          <Navigate to="/login" replace />
+        } />
       </Routes>
     </Router>
   )
