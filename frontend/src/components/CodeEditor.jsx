@@ -29,19 +29,17 @@ const CodeEditor = ({
   return (
     <div className="code-editor" style={{ display: isActive ? 'flex' : 'none' }}>
       <div className="editor-header">
-        <span className="editor-title" data-language={language}>{language.toUpperCase()}</span>
+        <span>{language.toUpperCase()}</span>
       </div>
       <textarea
-        className={`editor-textarea ${language}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         spellCheck={false}
-        dangerouslySetInnerHTML={{ __html: processTextForBrackets(value) }}
         style={{
           background: '#1e1e1e',
           color: '#d4d4d4',
-          fontFamily: 'Consolas, Monaco, Courier New, monospace',
+          fontFamily: 'Consolas, Monaco, "Courier New", monospace',
           fontSize: '14px',
           lineHeight: '1.5',
           border: 'none',
@@ -50,9 +48,7 @@ const CodeEditor = ({
           padding: '15px',
           width: '100%',
           height: '100%',
-          whiteSpace: 'pre-wrap',
-          wordWrap: 'break-word',
-          overflow: 'auto'
+          tabSize: 2
         }}
       />
     </div>

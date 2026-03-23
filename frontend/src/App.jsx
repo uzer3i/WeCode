@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login'
 import Signup from './components/Signup'
 import CodeEditorApp from './components/CodeEditorApp'
+import SnippetLoader from './components/SnippetLoader'
 import './App.css'
 
 function App() {
-  console.log('App component rendering')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [user, setUser] = useState(null)
 
@@ -32,16 +32,20 @@ function App() {
   useEffect(() => {
     const savedUser = localStorage.getItem('wecode-user')
     if (savedUser) {
-      const userData = JSON.parse(savedUser)
-      setUser(userData)
-      setIsAuthenticated(true)
+      try {
+        const userData = JSON.parse(savedUser)
+        setUser(userData)
+        setIsAuthenticated(true)
+      } catch (parseError) {
+        console.error('Error parsing user data:', parseError)
+        localStorage.removeItem('wecode-user')
+        localStorage.removeItem('wecode-token')
+      }
     }
   }, [])
 
   // If not authenticated, show login/signup routes
-  console.log('Authentication state:', isAuthenticated)
   if (!isAuthenticated) {
-    console.log('Showing unauthenticated routes')
     return (
       <Router>
         <Routes>
@@ -54,12 +58,12 @@ function App() {
   }
 
   // If authenticated, show the code editor
-  console.log('Showing authenticated routes')
   return (
     <Router>
       <Routes>
-        <Route path="/editor" element={<CodeEditorApp user={user} onLogout={handleLogout} />} />
         <Route path="/" element={<CodeEditorApp user={user} onLogout={handleLogout} />} />
+        <Route path="/editor" element={<CodeEditorApp user={user} onLogout={handleLogout} />} />
+        <Route path="/snippet" element={<SnippetLoader user={user} onLogout={handleLogout} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

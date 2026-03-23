@@ -24,17 +24,12 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      console.log('Form data being sent:', formData)
-      
       const response = await axios.post('https://wecode-backend-876t.onrender.com/api/auth/login', {
         email: formData.email,
         password: formData.password
       })
       
-      console.log('Login response:', response.data)
-      
       if (response.data) {
-        // Store token and user data locally
         localStorage.setItem('wecode-token', response.data.token)
         localStorage.setItem('wecode-user', JSON.stringify(response.data.user))
         onLogin(response.data.user)
@@ -63,7 +58,6 @@ const Login = ({ onLogin, onSwitchToSignup }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    console.log(`Input changed: ${name} = ${value}`)
     setFormData(prev => ({ ...prev, [name]: value }))
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }))
   }

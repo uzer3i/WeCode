@@ -37,6 +37,228 @@ body {
   /* animation: headerGradient 20s ease-in-out infinite; */
 }
 
+.header-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+  margin: 0 20px;
+}
+
+.snippet-title-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.snippet-title-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
+}
+
+.snippet-title-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.snippet-title-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-message {
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+.save-message.success {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.save-message.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Snippets Panel */
+.snippets-panel {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 350px;
+  max-height: 500px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.snippets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #2d1a3d 0%, #4a1a4a 100%);
+  border-bottom: 1px solid #333;
+}
+
+.snippets-title {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.close-snippets-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.close-snippets-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.snippets-content {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.snippets-empty {
+  text-align: center;
+  color: #666;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+.snippets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.snippet-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.snippet-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.snippet-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.snippet-title {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snippet-date {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+}
+
+.snippet-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.snippet-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.snippet-btn:hover {
+  background: linear-gradient(135deg, #0099ff 0%, #0077cc 100%);
+  transform: translateY(-1px);
+}
+
+.load-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.load-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+/* Scrollbar styling for snippets panel */
+.snippets-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.snippets-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.snippets-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.snippets-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -135,10 +357,16 @@ body {
   transition: all 0.2s;
 }
 
-.header-btn:hover {
+.header-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #ffeb99 0%, #ffd966 50%, #ffeb99 100%);
   color: #000;
   transform: translateY(-1px);
+}
+
+.header-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .header-btn.console-btn {

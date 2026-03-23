@@ -1,11 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { Folder, File, Plus, CloudUpload, Share, Code, GitBranch, LayoutGrid, Play, X, Terminal, Settings, Maximize2, Save, Maximize } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Folder, Save, X, Terminal, Maximize, Code } from 'lucide-react'
 import CodeEditor from './CodeEditor'
+import LoadingSpinner from './LoadingSpinner'
+import { snippetAPI } from '../services/api'
 import '../App.css'
 
-function CodeEditorApp({ user, onLogout }) {
-  console.log('CodeEditorApp rendering with props:', { user, onLogout })
+function CodeEditorApp({ user, onLogout, preloadedSnippet }) {
+  const navigate = useNavigate()
 
   const [html, setHtml] = useState(`<!-- WeCode - Professional Web Development Environment -->
 <!DOCTYPE html>
@@ -209,7 +211,6 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
   const [srcDoc, setSrcDoc] = useState('')
   const [showConsole, setShowConsole] = useState(false)
   const [consoleLogs, setConsoleLogs] = useState([])
-  const [layout, setLayout] = useState('vertical')
   const [previewHeight, setPreviewHeight] = useState(20) // percentage - now used for vh units
   const [isResizing, setIsResizing] = useState(false)
   const [resizingPanel, setResizingPanel] = useState(null) // 'preview', 'html', 'css', 'js'
@@ -219,6 +220,12 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
     css: 33,
     js: 33
   }) // percentage for each tray (width now)
+  const [snippetTitle, setSnippetTitle] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveMessage, setSaveMessage] = useState('')
+  const [showSnippets, setShowSnippets] = useState(false)
+  const [userSnippets, setUserSnippets] = useState([])
+  const [isLoadingSnippets, setIsLoadingSnippets] = useState(false)
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -252,24 +259,63 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
     setConsoleLogs([])
   }
 
-  const saveCode = () => {
-    const code = {
-      html,
-      css,
-      js,
-      timestamp: new Date().toISOString()
+  const loadUserSnippets = async () => {
+    setIsLoadingSnippets(true)
+    try {
+      const response = await snippetAPI.getUserSnippets()
+      if (response.success) {
+        setUserSnippets(response.snippets)
+      }
+    } catch (error) {
+      console.error('Error loading snippets:', error)
+    } finally {
+      setIsLoadingSnippets(false)
     }
-    localStorage.setItem('codepen-clone', JSON.stringify(code))
-    alert('Code saved locally!')
   }
 
-  const loadCode = () => {
-    const saved = localStorage.getItem('codepen-clone')
-    if (saved) {
-      const code = JSON.parse(saved)
-      setHtml(code.html)
-      setCss(code.css)
-      setJs(code.js)
+  const loadSnippetById = async (snippetId) => {
+    navigate(`/snippet?id=${snippetId}`)
+  }
+
+  const saveCode = async () => {
+    if (!snippetTitle.trim()) {
+      setSaveMessage('Please enter a title for your snippet')
+      setTimeout(() => setSaveMessage(''), 3000)
+      return
+    }
+
+    setIsSaving(true)
+    setSaveMessage('')
+
+    try {
+      const snippetData = {
+        title: snippetTitle.trim(),
+        html,
+        css,
+        js,
+        language: 'html',
+        isPublic: true
+      }
+
+      const response = await snippetAPI.createSnippet(snippetData)
+      
+      if (response.success) {
+        setSaveMessage('Snippet saved successfully!')
+        setSnippetTitle('')
+        localStorage.setItem('lastSavedSnippet', JSON.stringify({
+          id: response.snippet._id,
+          title: response.snippet.title,
+          timestamp: new Date().toISOString()
+        }))
+      } else {
+        setSaveMessage('Failed to save snippet')
+      }
+    } catch (error) {
+      console.error('Error saving snippet:', error)
+      setSaveMessage(error.message || 'Failed to save snippet')
+    } finally {
+      setIsSaving(false)
+      setTimeout(() => setSaveMessage(''), 5000)
     }
   }
 
@@ -279,26 +325,20 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
 
   // Resize handlers
   const handleMouseDown = (panel, e) => {
-    console.log('Resize started for panel:', panel)
     setIsResizing(true)
     setResizingPanel(panel)
     e.preventDefault()
-    // Add visual feedback - set cursor based on panel type
     if (panel === 'css' || panel === 'html') {
       document.body.style.cursor = 'ew-resize'
-      console.log('Set cursor to ew-resize for horizontal resize')
     } else if (panel === 'preview') {
       document.body.style.cursor = 'ns-resize'
-      console.log('Set cursor to ns-resize for vertical preview resize')
     }
     document.body.style.userSelect = 'none'
   }
 
   const handleMouseUp = () => {
-    console.log('Resize ended for panel:', resizingPanel)
     setIsResizing(false)
     setResizingPanel(null)
-    // Reset visual feedback
     document.body.style.cursor = ''
     document.body.style.userSelect = ''
   }
@@ -307,47 +347,35 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
     if (!isResizing || !resizingPanel) return
     
     if (resizingPanel === 'preview') {
-      // Handle vertical resize of bottom preview panel
       const windowHeight = window.innerHeight
       const relativeY = Math.max(0, Math.min(windowHeight, windowHeight - e.clientY))
       const percentage = (relativeY / windowHeight) * 100
       const clampedHeight = Math.max(10, Math.min(80, percentage))
       
-      console.log('Preview resize - relativeY:', relativeY, 'percentage:', percentage, 'clampedHeight:', clampedHeight)
-      
       setPreviewHeight(clampedHeight)
-      console.log('Set preview height to:', clampedHeight)
     } else if (resizingPanel === 'css') {
-      // Middle handle controls CSS vs JS split
       const editorArea = document.querySelector('.code-editors')
       if (!editorArea) return
 
       const rect = editorArea.getBoundingClientRect()
       const relativeX = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
       const percentage = (relativeX / rect.width) * 100
-
-      console.log('CSS resize - relativeX:', relativeX, 'percentage:', percentage)
 
       setTraySizes(prev => {
         const newSizes = { ...prev }
-        // CSS handle position: drag right = expand CSS, drag left = expand JS
-        newSizes.css = Math.max(15, Math.min(50, percentage)) // CSS tray controlled by handle position
+        newSizes.css = Math.max(15, Math.min(50, percentage))
         const remaining = 100 - newSizes.css
-        newSizes.html = remaining * 0.3 // Keep HTML smaller
-        newSizes.js = remaining * 0.7 // JS gets the rest
-        console.log('New tray sizes:', newSizes)
+        newSizes.html = remaining * 0.3
+        newSizes.js = remaining * 0.7
         return newSizes
       })
     } else if (resizingPanel === 'html') {
-      // Left handle controls its own tray (HTML)
       const editorArea = document.querySelector('.code-editors')
       if (!editorArea) return
 
       const rect = editorArea.getBoundingClientRect()
       const relativeX = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
       const percentage = (relativeX / rect.width) * 100
-
-      console.log('HTML resize - relativeX:', relativeX, 'percentage:', percentage)
 
       setTraySizes(prev => {
         const newSizes = { ...prev }
@@ -355,7 +383,6 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
         const remaining = 100 - newSizes.html
         newSizes.css = remaining * 0.5
         newSizes.js = remaining * 0.5
-        console.log('New tray sizes:', newSizes)
         return newSizes
       })
     }
@@ -372,11 +399,16 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
     }
   }, [isResizing, resizingPanel])
 
+  // Load preloaded snippet if available
   useEffect(() => {
-    loadCode()
-  }, [])
+    if (preloadedSnippet) {
+      setHtml(preloadedSnippet.html || '')
+      setCss(preloadedSnippet.css || '')
+      setJs(preloadedSnippet.js || '')
+      setSnippetTitle(preloadedSnippet.title || '')
+    }
+  }, [preloadedSnippet])
 
-  console.log('CodeEditorApp about to return JSX')
   return (
     <div className="app-container">
       {/* Header */}
@@ -384,19 +416,91 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
         <div className="logo">
           <img src="/wecode_logo.png" alt="WeCode Logo" className="logo-image" />
         </div>
+        <div className="header-center">
+          <input
+            type="text"
+            placeholder="Enter snippet title..."
+            value={snippetTitle}
+            onChange={(e) => setSnippetTitle(e.target.value)}
+            className="snippet-title-input"
+            disabled={isSaving}
+          />
+          {saveMessage && (
+            <div className={`save-message ${saveMessage.includes('success') ? 'success' : 'error'}`}>
+              {saveMessage}
+            </div>
+          )}
+        </div>
         <div className="header-actions">
           <div className="user-info">
             <span>Welcome, {user?.name || user?.email}</span>
           </div>
-          <button className="header-btn" onClick={saveCode}>
+          <button 
+            className="header-btn" 
+            onClick={() => {
+              setShowSnippets(!showSnippets)
+              if (!showSnippets) {
+                loadUserSnippets()
+              }
+            }}
+          >
+            <Folder size={16} />
+            {showSnippets ? 'Hide Snippets' : 'My Snippets'}
+          </button>
+          <button 
+            className="header-btn" 
+            onClick={saveCode}
+            disabled={isSaving || !snippetTitle.trim()}
+          >
             <Save size={16} />
-            Save
+            {isSaving ? 'Saving...' : 'Save'}
           </button>
           <button className="header-btn" onClick={onLogout}>
             Logout
           </button>
         </div>
       </div>
+
+      {/* User Snippets Panel */}
+      {showSnippets && (
+        <div className="snippets-panel">
+          <div className="snippets-header">
+            <span className="snippets-title">📁 My Snippets</span>
+            <button className="close-snippets-btn" onClick={() => setShowSnippets(false)}>
+              <X size={14} />
+            </button>
+          </div>
+          <div className="snippets-content">
+            {isLoadingSnippets ? (
+              <LoadingSpinner message="Loading your snippets..." size="small" />
+            ) : userSnippets.length === 0 ? (
+              <div className="snippets-empty">No snippets found. Save your first snippet!</div>
+            ) : (
+              <div className="snippets-list">
+                {userSnippets.map((snippet) => (
+                  <div key={snippet._id} className="snippet-item">
+                    <div className="snippet-info">
+                      <h4 className="snippet-title">{snippet.title}</h4>
+                      <p className="snippet-date">
+                        {new Date(snippet.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="snippet-actions">
+                      <button 
+                        className="snippet-btn load-btn"
+                        onClick={() => loadSnippetById(snippet._id)}
+                      >
+                        <Code size={14} />
+                        Load
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Main Editor Area */}
       <div className="editor-area">
