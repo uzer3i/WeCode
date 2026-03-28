@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import CodeEditorApp from './components/CodeEditorApp'
@@ -51,13 +51,13 @@ function App() {
         <Route path="/login" element={
           isAuthenticated ? 
           <Navigate to="/" replace /> : 
-          <Login onLogin={handleLogin} onSwitchToSignup={() => window.location.href = '/signup'} />
+          <LoginWrapper onLogin={handleLogin} />
         } />
         
         <Route path="/signup" element={
           isAuthenticated ? 
           <Navigate to="/" replace /> : 
-          <Signup onSignup={handleSignup} onSwitchToLogin={() => window.location.href = '/login'} />
+          <SignupWrapper onSignup={handleSignup} />
         } />
 
         {/* Protected routes - require authentication */}
@@ -88,6 +88,17 @@ function App() {
       </Routes>
     </Router>
   )
+}
+
+// Wrapper components to handle navigation
+function LoginWrapper({ onLogin }) {
+  const navigate = useNavigate()
+  return <Login onLogin={onLogin} onSwitchToSignup={() => navigate('/signup')} />
+}
+
+function SignupWrapper({ onSignup }) {
+  const navigate = useNavigate()
+  return <Signup onSignup={onSignup} onSwitchToLogin={() => navigate('/login')} />
 }
 
 export default App
