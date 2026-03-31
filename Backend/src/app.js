@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const authRouter = require("./routes/auth.route");
 const snippetRouter = require("./routes/snippet.route");
+const communityRoutes = require("./routes/community.route");
 
 /**
  * Using routes
@@ -26,5 +27,7 @@ const snippetRouter = require("./routes/snippet.route");
 app.use("/api/auth", authRouter);
 
 app.use("/api/snippet", snippetRouter);
+
+app.use("/api/community", communityRoutes);
 
 module.exports = app;
