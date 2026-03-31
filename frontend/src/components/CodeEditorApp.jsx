@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Folder, Save, X, Terminal, Maximize, Code } from 'lucide-react'
+import { Folder, Save, X, Terminal, Maximize, Code, Users } from 'lucide-react'
 import CodeEditor from './CodeEditor'
 import LoadingSpinner from './LoadingSpinner'
 import { snippetAPI } from '../services/api'
@@ -446,6 +446,13 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
           >
             <Folder size={16} />
             {showSnippets ? 'Hide Snippets' : 'My Snippets'}
+          </button>
+          <button 
+            className="header-btn" 
+            onClick={() => navigate('/feed')}
+          >
+            <Users size={16} />
+            Community Feed
           </button>
           <button 
             className="header-btn" 

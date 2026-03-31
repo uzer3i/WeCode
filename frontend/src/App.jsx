@@ -4,6 +4,7 @@ import Login from './components/Login'
 import Signup from './components/Signup'
 import CodeEditorApp from './components/CodeEditorApp'
 import SnippetLoader from './components/SnippetLoader'
+import Feed from './components/Feed'
 import './App.css'
 
 function App() {
@@ -76,6 +77,12 @@ function App() {
         <Route path="/snippet" element={
           isAuthenticated ? 
           <SnippetLoader user={user} onLogout={handleLogout} /> : 
+          <Navigate to="/login" replace />
+        } />
+        
+        <Route path="/feed" element={
+          isAuthenticated ? 
+          <Feed /> : 
           <Navigate to="/login" replace />
         } />
 
