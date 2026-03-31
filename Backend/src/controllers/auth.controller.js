@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const generateToken = require("../utils/token.util");
+const { sendRegistrationEmail } = require("../services/email.service");
 
 /**
  * - Register user controller
@@ -38,8 +39,10 @@ async function registerUser(req, res) {
         name: user.name,
         email: user.email,
       },
-      token: token
+      token: token,
     });
+
+    await sendRegistrationEmail(user.email, user.name);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
@@ -76,7 +79,7 @@ async function loginUser(req, res) {
         name: user.name,
         email: user.email,
       },
-      token: token
+      token: token,
     });
   } catch (e) {
     res.status(500).json({
