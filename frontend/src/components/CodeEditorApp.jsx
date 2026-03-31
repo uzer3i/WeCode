@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Folder, Save, X, Terminal, Maximize, Code, Users } from 'lucide-react'
+import { Folder, Save, X, Code, Users } from 'lucide-react'
 import CodeEditor from './CodeEditor'
 import LoadingSpinner from './LoadingSpinner'
 import { snippetAPI } from '../services/api'
@@ -209,12 +209,10 @@ window.wecodeUtils = wecodeUtils;
 console.log('🎯 WeCode JavaScript Environment Ready!');`)
 
   const [srcDoc, setSrcDoc] = useState('')
-  const [showConsole, setShowConsole] = useState(false)
   const [consoleLogs, setConsoleLogs] = useState([])
   const [previewHeight, setPreviewHeight] = useState(20) // percentage - now used for vh units
   const [isResizing, setIsResizing] = useState(false)
   const [resizingPanel, setResizingPanel] = useState(null) // 'preview', 'html', 'css', 'js'
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const [traySizes, setTraySizes] = useState({
     html: 33,
     css: 33,
@@ -319,10 +317,7 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
     }
   }
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen)
-  }
-
+  
   // Resize handlers
   const handleMouseDown = (panel, e) => {
     setIsResizing(true)
@@ -581,12 +576,13 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
             }}>
               🔄 Refresh Now
             </button>
-            <button className="console-btn" onClick={() => setShowConsole(!showConsole)}>
-              <Terminal size={16} />
+            <button className="console-btn">
+              🔄 Refresh Now
+            </button>
+            <button className="console-btn">
               Console
             </button>
-            <button className="fullscreen-btn" onClick={toggleFullscreen}>
-              <Maximize size={16} />
+            <button className="fullscreen-btn">
               Fullscreen
             </button>
           </div>
@@ -595,57 +591,9 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
           srcDoc={srcDoc}
           title="preview"
           className="preview-frame"
-          sandbox="allow-scripts"
+          sandbox="allow-scripts allow-same-origin"
         />
       </div>
-
-      {/* Console Panel */}
-      {showConsole && (
-        <div className="console-panel">
-          <div className="console-header">
-            <span className="console-title">📟 Console</span>
-            <div className="console-actions">
-              <button className="console-btn" onClick={clearConsole}>
-                Clear
-              </button>
-              <button className="console-btn" onClick={() => setShowConsole(false)}>
-                <X size={14} />
-              </button>
-            </div>
-          </div>
-          <div className="console-content">
-            {consoleLogs.map((log, index) => (
-              <div
-                key={index}
-                className={`console-log console-${log.type}`}
-              >
-                [{log.type.toUpperCase()}] {log.message}
-              </div>
-            ))}
-            {consoleLogs.length === 0 && (
-              <div className="console-empty">No console output yet...</div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Fullscreen Preview Modal */}
-      {isFullscreen && (
-        <div className="fullscreen-modal">
-          <div className="fullscreen-header">
-            <span className="fullscreen-title">🌐 Fullscreen Preview</span>
-            <button className="close-fullscreen-btn" onClick={toggleFullscreen}>
-              <X size={20} />
-            </button>
-          </div>
-          <iframe
-            srcDoc={srcDoc}
-            title="fullscreen-preview"
-            className="fullscreen-frame"
-            sandbox="allow-scripts"
-          />
-        </div>
-      )}
     </div>
   )
 }

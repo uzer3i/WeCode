@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Code, User, Clock, Eye, Heart, MessageCircle, ExternalLink, Search, Grid, List, TrendingUp, Star, Filter, Play, Pause } from 'lucide-react'
+import { User, Clock, Eye, Heart, ExternalLink, Search, Grid, List, TrendingUp, Star, Play } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import LoadingSpinner from './LoadingSpinner'
 import './Feed.css'
@@ -12,7 +12,6 @@ function Feed() {
   const [totalPages, setTotalPages] = useState(1)
   const [search, setSearch] = useState('')
   const [viewMode, setViewMode] = useState('grid') // grid or list
-  const [sortBy, setSortBy] = useState('latest') // latest, popular, oldest
   const [hoveredSnippet, setHoveredSnippet] = useState(null)
   const navigate = useNavigate()
 
