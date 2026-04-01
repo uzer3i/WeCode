@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Folder, Save, X, Code, Users } from 'lucide-react'
+import { Folder, Save, X, Code, Users, Terminal, Maximize } from 'lucide-react'
 import CodeEditor from './CodeEditor'
 import LoadingSpinner from './LoadingSpinner'
 import { snippetAPI } from '../services/api'
@@ -206,13 +206,56 @@ const wecodeUtils = {
 window.WeCodeApp = WeCodeApp;
 window.wecodeUtils = wecodeUtils;
 
-console.log('🎯 WeCode JavaScript Environment Ready!');`)
+console.log('🎯 WeCode JavaScript Environment Ready!');
+    
+    // Override console to capture logs
+    const originalConsole = {
+      log: console.log,
+      error: console.error,
+      warn: console.warn,
+      info: console.info
+    };
+    
+    console.log = function(...args) {
+      originalConsole.log(...args);
+      window.parent.postMessage({
+        type: 'console',
+        message: 'LOG: ' + args.join(' ')
+      }, '*');
+    };
+    
+    console.error = function(...args) {
+      originalConsole.error(...args);
+      window.parent.postMessage({
+        type: 'console',
+        message: 'ERROR: ' + args.join(' ')
+      }, '*');
+    };
+    
+    console.warn = function(...args) {
+      originalConsole.warn(...args);
+      window.parent.postMessage({
+        type: 'console',
+        message: 'WARN: ' + args.join(' ')
+      }, '*');
+    };
+    
+    console.info = function(...args) {
+      originalConsole.info(...args);
+      window.parent.postMessage({
+        type: 'console',
+        message: 'INFO: ' + args.join(' ')
+      }, '*');
+    };
+  }`)
 
   const [srcDoc, setSrcDoc] = useState('')
+  const [showConsole, setShowConsole] = useState(false)
   const [consoleLogs, setConsoleLogs] = useState([])
   const [previewHeight, setPreviewHeight] = useState(20) // percentage - now used for vh units
   const [isResizing, setIsResizing] = useState(false)
   const [resizingPanel, setResizingPanel] = useState(null) // 'preview', 'html', 'css', 'js'
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [traySizes, setTraySizes] = useState({
     html: 33,
     css: 33,
@@ -238,17 +281,57 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
         <body>
           ${html}
           <script>
+            // Override console to capture logs
+            const originalConsole = {
+              log: console.log,
+              error: console.error,
+              warn: console.warn,
+              info: console.info
+            };
+            
+            console.log = function(...args) {
+              originalConsole.log(...args);
+              window.parent.postMessage({
+                type: 'console',
+                message: 'LOG: ' + args.join(' ')
+              }, '*');
+            };
+            
+            console.error = function(...args) {
+              originalConsole.error(...args);
+              window.parent.postMessage({
+                type: 'console',
+                message: 'ERROR: ' + args.join(' ')
+              }, '*');
+            };
+            
+            console.warn = function(...args) {
+              originalConsole.warn(...args);
+              window.parent.postMessage({
+                type: 'console',
+                message: 'WARN: ' + args.join(' ')
+              }, '*');
+            };
+            
+            console.info = function(...args) {
+              originalConsole.info(...args);
+              window.parent.postMessage({
+                type: 'console',
+                message: 'INFO: ' + args.join(' ')
+              }, '*');
+            };
+            
             // Execute user code
             try {
               ${js}
             } catch (error) {
               console.error(error.message);
             }
-          <\/script>
+          </script>
         </body>
         </html>
       `)
-    }, 1000) // Changed to 1 second
+    }, 250)
 
     return () => clearTimeout(timeout)
   }, [html, css, js])
@@ -315,6 +398,10 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
       setIsSaving(false)
       setTimeout(() => setSaveMessage(''), 5000)
     }
+  }
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
   }
 
   
@@ -393,6 +480,18 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
       }
     }
   }, [isResizing, resizingPanel])
+
+  // Listen for console messages from iframe
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data.type === 'console') {
+        setConsoleLogs(prev => [...prev, event.data.message])
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
 
   // Load preloaded snippet if available
   useEffect(() => {
@@ -567,7 +666,7 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
           style={{ cursor: isResizing ? 'ns-resize' : 'ns-resize' }}
         />
         <div className="preview-header">
-          <span className="preview-title">🌐 Live Preview (Auto-refreshing )</span>
+          <span className="preview-title">🌐 Live Preview (Auto-refreshing)</span>
           <div className="preview-actions">
             <button className="refresh-btn" onClick={() => {
               // Force refresh by clearing and resetting srcDoc
@@ -576,13 +675,12 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
             }}>
               🔄 Refresh Now
             </button>
-            <button className="console-btn">
-              🔄 Refresh Now
-            </button>
-            <button className="console-btn">
+            <button className="console-btn" onClick={() => setShowConsole(!showConsole)}>
+              <Terminal size={16} />
               Console
             </button>
-            <button className="fullscreen-btn">
+            <button className="fullscreen-btn" onClick={toggleFullscreen}>
+              <Maximize size={16} />
               Fullscreen
             </button>
           </div>
@@ -594,6 +692,48 @@ console.log('🎯 WeCode JavaScript Environment Ready!');`)
           sandbox="allow-scripts allow-same-origin"
         />
       </div>
+
+      {/* Console Panel */}
+      {showConsole && (
+        <div className="console-panel">
+          <div className="console-header">
+            <span className="console-title">📟 Console</span>
+            <div className="console-actions">
+              <button className="console-btn" onClick={clearConsole}>
+                Clear
+              </button>
+              <button className="console-btn" onClick={() => setShowConsole(false)}>
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+          <div className="console-content">
+            {consoleLogs.map((log, index) => (
+              <div key={index} className="console-log">
+                {log}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Preview Modal */}
+      {isFullscreen && (
+        <div className="fullscreen-modal">
+          <div className="fullscreen-header">
+            <span className="fullscreen-title">🌐 Fullscreen Preview</span>
+            <button className="close-fullscreen-btn" onClick={toggleFullscreen}>
+              <X size={20} />
+            </button>
+          </div>
+          <iframe
+            srcDoc={srcDoc}
+            title="fullscreen preview"
+            className="fullscreen-frame"
+            sandbox="allow-scripts allow-same-origin"
+          />
+        </div>
+      )}
     </div>
   )
 }
