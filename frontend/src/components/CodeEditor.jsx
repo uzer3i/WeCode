@@ -28,8 +28,8 @@ const CodeEditor = ({
 
   return (
     <div className="code-editor" style={{ display: isActive ? 'flex' : 'none' }}>
-      <div className="editor-header">
-        <span>{language.toUpperCase()}</span>
+      <div className="editor-header" data-language={language}>
+        <span className="editor-title">{language.toUpperCase()}</span>
       </div>
       <textarea
         value={value}
